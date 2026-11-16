@@ -1,30 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:pemutar_musik_offline/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Music player UI and interaction smoke test', (
+    WidgetTester tester,
+  ) async {
+    // Berikan parameter isLoggedIn dan initialUserName sesuai konstruktor terbaru
+    await tester.pumpWidget(
+      const MusicPlayerApp(isLoggedIn: true, initialUserName: 'Tester'),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 1. Verifikasi sapaan nama user di AppBar muncul
+    expect(find.text('Halo, Tester'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // 2. Verifikasi daftar lagu tampil (Lagu Populer 1 muncul di list & mini player)
+    expect(find.text('Lagu Populer 1'), findsNWidgets(2));
+    expect(find.text('Lagu Favorit 2'), findsOneWidget);
+
+    // 3. Verifikasi tombol play awalnya berikon play_arrow
+    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
+    expect(find.byIcon(Icons.pause), findsNothing);
+
+    // 4. Klik tombol play dan pastikan berubah menjadi ikon pause
+    await tester.tap(find.byIcon(Icons.play_arrow));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byIcon(Icons.pause), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow), findsNothing);
   });
 }
