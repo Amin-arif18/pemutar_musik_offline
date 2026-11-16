@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: music_player_db
+    restart: always
+    environment:
+      POSTGRES_USER: music_admin
+      POSTGRES_PASSWORD: secretpassword123
+      POSTGRES_DB: music_player_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U music_admin -d music_player_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    container_name: music_player_api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://music_admin:secretpassword123@db:5432/music_player_db
+      JWT_SECRET: kunci_rahasia_jwt_super_aman_2026
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
